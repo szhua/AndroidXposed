@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.szhua.androidxposed">
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />;
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+
+        <!--配置相关的属性-->
+
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+        <meta-data
+            android:name="xposeddescription"
+            android:value="看看我这个名字好不好！" />
+        <meta-data
+            android:name="xposedminversion"
+            android:value="54" />
+
+
+        <activity android:name=".XposedActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <!--广告Activity的设置-->
+        <activity android:name=".AdActivity"
+            android:theme="@style/TransparentWindow"
+            >
+            <intent-filter >
+                <action android:name="com.szhua.androidposed.action.Ad"/>
+                <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"></category>
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
