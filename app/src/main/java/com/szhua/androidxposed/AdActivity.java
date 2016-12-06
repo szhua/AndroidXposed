@@ -12,6 +12,13 @@ import android.widget.ImageView;
  */
 public class AdActivity extends AppCompatActivity {
 
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +34,8 @@ public class AdActivity extends AppCompatActivity {
         });
 
     }
+
+
 
 
     /**
