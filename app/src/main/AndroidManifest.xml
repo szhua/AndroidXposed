@@ -43,6 +43,15 @@
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"></category>
             </intent-filter>
         </activity>
+
+
+        <receiver android:name=".WeChatUserInfoGetReceiver">
+            <intent-filter>
+                <action android:name="com.szhua.action.userInfo"></action>
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>
