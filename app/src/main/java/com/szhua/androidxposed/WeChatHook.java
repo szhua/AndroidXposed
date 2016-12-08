@@ -41,6 +41,9 @@ public class WeChatHook {
     /**
      * default version 6.3.31 !!
      */
+    // TODO: 2016/12/8   to know what mz means !
+    private String Method_MZ ="MZ";
+
     private  String Class_ConactInfoUI  ;
     private  String Class_LauncherUI ;
     private  String Class_MMPreference;
@@ -120,11 +123,40 @@ public class WeChatHook {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     //获得classLoader实例，以便调用使用dex创建的界面；
                     ClassLoader classLoader =param.thisObject.getClass().getClassLoader();
-                    hookDexMethod_getContactInfoUIinfo(classLoader);
+                   // hookDexMethod_getContactInfoUIinfo(classLoader);
+                    getInfoFromContactInfoUI_by_intent(classLoader);
                     toastWhenContactInfoUICreated(classLoader);
                 }
             });
     }
+
+
+    private void getInfoFromContactInfoUI_by_intent(final ClassLoader classLoader){
+        findAndHookMethod(Class_ConactInfoUI, classLoader,Method_MZ, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                    XposedBridge.log("start get INfo!");
+                    try{
+                        Activity currentActivity= (Activity) param.thisObject;
+                        Intent intent =currentActivity.getIntent() ;
+                        String result =  getContactInfoFromIntent(intent);
+                        //send message to receiver ;
+                        XposedBridge.log("start get INfo:"+result);
+                        Intent intent1 =new Intent() ;
+                        intent1.putExtra(com.szhua.androidxposed.Constant.IntentExtendedStringName,result);
+                        intent1.setAction(com.szhua.androidxposed.Constant.Receiver_Action);
+                        currentActivity.sendBroadcast(intent1);
+                    }catch (ClassCastException e){
+                        log("the currentObject can not cast to Context !!");
+                    }
+
+
+            }
+        });
+    }
+
+
 
 
     /**
@@ -260,6 +292,7 @@ public class WeChatHook {
                 Class_LauncherUI="com.tencent.mm.ui.LauncherUI" ;
                 Class_MMPreference="com.tencent.mm.ui.base.preference.MMPreference";
                 MMFRAME_LISTVIEW ="gsM";
+
                 ContactUI_ID_UserName=2131755477 ;
                 ContactUI_ID_WECHAT_NUM =2131756475 ;
                 ContactUI_ID_NickName =2131756485 ;
@@ -281,6 +314,77 @@ public class WeChatHook {
                 ContactUI_ID_SigNature =16908304 ;
                 ContactUI_ID_Distance =2131756475 ;
         }
+    }
+
+    /**
+     *
+     * @param intent  almost nothing O(∩_∩)O todo pass !!!
+     */
+    public String  getContactInfoFromIntent(Intent intent){
+        int a = intent.getIntExtra("Contact_Scene", 9);
+        String b  = intent.getStringExtra("Verify_ticket");
+        boolean c= intent.getBooleanExtra("Chat_Readonly", false);
+        boolean d = intent.getBooleanExtra("User_Verify", false);
+        String f= intent.getStringExtra("Contact_ChatRoomId");
+        String g= intent.getStringExtra("Contact_User");
+        String h = intent.getStringExtra("Contact_Alias");
+        String i =intent.getStringExtra("Contact_Encryptusername");
+        
+  
+        String j = intent.getStringExtra("Contact_Nick");
+        int k = intent.getIntExtra("Contact_Sex", 0);
+        String l= intent.getStringExtra("Contact_Province");
+        String m = intent.getStringExtra("Contact_City");
+        String n = intent.getStringExtra("Contact_Signature");
+        int o = intent.getIntExtra("Contact_VUser_Info_Flag", 0);
+        String p = intent.getStringExtra("Contact_VUser_Info");
+        String q = intent.getStringExtra("Contact_Distance");
+        int r = intent.getIntExtra("Contact_KWeibo_flag", 0);
+        String s = intent.getStringExtra("Contact_KWeibo");
+        String t = intent.getStringExtra("Contact_KWeiboNick");
+        String u = intent.getStringExtra("Contact_KFacebookName");
+        long v = intent.getLongExtra("Contact_KFacebookId", 0L);
+        String  w = intent.getStringExtra("Contact_BrandIconURL");
+        String x= intent.getStringExtra("Contact_RegionCode");
+        byte[]  y = intent.getByteArrayExtra("Contact_customInfo");
+        boolean z = intent.getBooleanExtra("force_get_contact", false);
+        String a1 =intent.getStringExtra("Contact_PyInitial");
+        String a2 =intent.getStringExtra("Contact_QuanPin");
+        String a3 =intent.getStringExtra("Contact_Search_Mobile");
+
+        StringBuffer stringbuffer =new StringBuffer() ;
+        stringbuffer.append("a:"+a+"\n");
+        stringbuffer.append("b:"+b+"\n");
+        stringbuffer.append("c:"+c+"\n");
+        stringbuffer.append("d:"+d+"\n");
+        stringbuffer.append("f:"+f+"\n");
+        stringbuffer.append("g:"+g+"\n");
+        stringbuffer.append("h:"+h+"\n");
+        stringbuffer.append("i:"+i+"\n");
+        stringbuffer.append("j:"+j+"\n");
+        stringbuffer.append("k:"+k+"\n");
+        stringbuffer.append("l:"+l+"\n");
+        stringbuffer.append("m:"+m+"\n");
+        stringbuffer.append("n:"+n+"\n");
+        stringbuffer.append("o:"+o+"\n");
+        stringbuffer.append("p:"+p+"\n");
+        stringbuffer.append("q:"+q+"\n");
+        stringbuffer.append("r:"+r+"\n");
+        stringbuffer.append("s:"+s+"\n");
+        stringbuffer.append("t:"+t+"\n");
+        stringbuffer.append("u:"+u+"\n");
+        stringbuffer.append("v:"+v+"\n");
+        stringbuffer.append("w:"+w+"\n");
+        stringbuffer.append("x:"+x+"\n");
+        stringbuffer.append("y:"+y+"\n");
+        stringbuffer.append("z:"+z+"\n");
+        stringbuffer.append("a1:"+a1+"\n");
+        stringbuffer.append("a2:"+a2+"\n");
+        stringbuffer.append("a3:"+a3+"\n");
+
+
+        return  stringbuffer.toString() ;
+
     }
 
 
