@@ -41,7 +41,7 @@ public class WeChatHook {
     /**
      * default version 6.3.31 !!
      */
-    // TODO: 2016/12/8   to know what mz means !
+    // TODO: 2016/12/8   to know what mz means !  nothing ;
     private String Method_MZ ="MZ";
 
     private  String Class_ConactInfoUI  ;
@@ -123,8 +123,8 @@ public class WeChatHook {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     //获得classLoader实例，以便调用使用dex创建的界面；
                     ClassLoader classLoader =param.thisObject.getClass().getClassLoader();
-                   // hookDexMethod_getContactInfoUIinfo(classLoader);
-                    getInfoFromContactInfoUI_by_intent(classLoader);
+                    hookDexMethod_getContactInfoUIinfo(classLoader);
+                   // getInfoFromContactInfoUI_by_intent(classLoader);
                     toastWhenContactInfoUICreated(classLoader);
                 }
             });
@@ -219,7 +219,6 @@ public class WeChatHook {
                                         }catch (ClassCastException e){
                                          log("the currentObject can not cast to Context !!");
                                         }
-
                                     }
                                 }
                             }
