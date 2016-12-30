@@ -2,12 +2,12 @@ package com.szhua.androidxposed;
 
 
 import android.content.Context;
-import android.widget.TextView;
-import java.util.ArrayList;
+
+import com.orhanobut.logger.Logger;
+
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
@@ -29,9 +29,10 @@ public class Tutorial implements IXposedHookLoadPackage {
         if (!(packageName.contains("com.tencen") && packageName.contains("mm")))
             return;
         //获得基本信息；
-        String version =  getBaseInfoFromWx(packageName,loadPackageParam);
+       String version =getBaseInfoFromWx(packageName,loadPackageParam);
+       Logger.d(version);
         //执行hook操作；
-        WeChatHook.getInstance(version).hook(loadPackageParam.classLoader);
+       WeChatHook.getInstance(version).hook(loadPackageParam.classLoader);
 
     }
     /**
@@ -45,8 +46,8 @@ public class Tutorial implements IXposedHookLoadPackage {
         try {
             String versionName = context.getPackageManager().getPackageInfo(packageName,0).versionName ;
             int uin =loadPackageParam.appInfo.uid;
-            log("VersionName:"+versionName);
-            log("Uin:"+uin);
+            Logger.d("VersionName:"+versionName);
+            Logger.d("Uin:"+uin);
             return  versionName ;
         } catch (Exception e) {
             e.printStackTrace();

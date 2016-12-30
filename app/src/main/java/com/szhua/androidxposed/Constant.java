@@ -9,4 +9,5 @@ public class Constant {
     public static final String Receiver_Action = "com.szhua.action.userInfo" ;
     public static final String IntentExtendedStringName ="userInfo" ;
 
+
 }
