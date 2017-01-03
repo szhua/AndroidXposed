@@ -4,18 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.orhanobut.logger.Logger;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
@@ -58,13 +54,12 @@ public class WeChatHook {
     private static class SingletonHolder{
         public  static WeChatHook instance(String version){
             return  new WeChatHook(version) ;
+
         }
     }
     public  static  WeChatHook getInstance(String version){
         return  SingletonHolder.instance(version);
     }
-
-
 
     private ArrayList<TextView> contactInfoUITextViews =new ArrayList<>() ;
   //  private ArrayList<ImageView> contactsInfoUIIMageViews =new ArrayList<>() ;
@@ -76,7 +71,6 @@ public class WeChatHook {
         } catch (Exception e) {
             log("erro when lancherUI");
         }
-
         try {
             getInfoFromContactInfoUI(classLoader);
         } catch (Exception e) {
@@ -99,21 +93,29 @@ public class WeChatHook {
 
 
     /*从搜索界面获得手机号，qq号，或者微信号 ==the detail hook method*/
-    private void hookMethod_getInputNumberFromFtsUI(ClassLoader classLoader){
-        findAndHookMethod(Class_FTSAddFriendUI, classLoader, Method_HookNumber_FromFTSAddFried,String.class , new XC_MethodHook() {
+    //a(boolean paramBoolean, String[] paramArrayOfString, long paramLong, int paramInt)
+    //public void onItemClick(AdapterView<?> paramAdapterView, View paramView, int paramInt, long paramLong)
+    private void getInputNumberFromFtsUI(ClassLoader classLoader){
+
+        findAndHookMethod(Class_FTSAddFriendUI, classLoader, "onItemClick", AdapterView.class,View.class,int.class,long.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                log("fsdfjkdsjfkdsjfkdsjfkdjsfksdj\n\n\n\n\n\n\n\n\nfdsfds");
-                 String params ="" ;
-                 if(param.args!=null&&param.args[0]!=null){
-                  params =String.valueOf(param.args[0]);
-                 }
-                 //send to server
-                Intent broadCastintent =new Intent() ;
-                broadCastintent.putExtra(com.szhua.androidxposed.Constant.IntentExtendedStringName,params);
-                broadCastintent.setAction(com.szhua.androidxposed.Constant.Receiver_Action);
-                ((Activity)param.thisObject).sendBroadcast(broadCastintent);
-
+                int paramInt = (int) param.args[2];
+                if(paramInt==0){
+                     ViewGroup viewGroup = (ViewGroup) param.args[1];
+                     TextView phoneNumberView =getPhoneNumberView(viewGroup) ;
+                     if(null!=phoneNumberView){
+                         String showStr =phoneNumberView.getText().toString();
+                         //查找手机/QQ号:552331
+                        showStr=showStr.substring("查找手机/QQ号:".length(),showStr.length());
+                        log(showStr);
+                        Intent broadCastintent = new Intent() ;
+                         broadCastintent.putExtra(Constant.IntentExtendedNumName,showStr+",");
+                         broadCastintent.putExtra("type",1);
+                         broadCastintent.setAction(Constant.Receiver_Action_Num);
+                         phoneNumberView.getContext().sendBroadcast(broadCastintent);
+                     }
+                }
             }
         }) ;
     }
@@ -124,10 +126,10 @@ public class WeChatHook {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     //获得classLoader实例，以便调用使用dex创建的界面；
                     ClassLoader classLoader =param.thisObject.getClass().getClassLoader();
-                    hookDexMethod_getContactInfoUIinfo(classLoader);
+                  //  hookDexMethod_getContactInfoUIinfo(classLoader);
                     getInfoFromContactInfoUI_by_intent(classLoader);
+                    getInputNumberFromFtsUI(classLoader);
                     toastWhenContactInfoUICreated(classLoader);
-                    hookMethod_getInputNumberFromFtsUI(classLoader);
                 }
             });
     }
@@ -142,9 +144,11 @@ public class WeChatHook {
                         Intent originaIntent =currentActivity.getIntent() ;
                         String result =  getContactInfoFromIntent(originaIntent);
                         //send message to receiver ;
+                        log(result);
                         Intent broadCastintent =new Intent() ;
                         broadCastintent.putExtra(com.szhua.androidxposed.Constant.IntentExtendedStringName,result);
-                        broadCastintent.setAction(com.szhua.androidxposed.Constant.Receiver_Action);
+                        broadCastintent.putExtra("type",2);
+                        broadCastintent.setAction(Constant.Receiver_Action_Info);
                         currentActivity.sendBroadcast(broadCastintent);
                     }catch (ClassCastException e){
                         Logger.e("the currentObject can not cast to Context !!");
@@ -155,69 +159,6 @@ public class WeChatHook {
 
 
 
-
-    /*从联系人详情页面的控件中找信息 from listview to get infos */
-    private void hookDexMethod_getContactInfoUIinfo(final ClassLoader clsLoader) throws XposedHelpers.ClassNotFoundError {
-            findAndHookMethod(
-                    Class_ConactInfoUI,
-                    clsLoader, Method_onPause , new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param)
-                                throws Throwable {
-                            Object currentObject = param.thisObject;
-                            //获得ContactInfoUI的父类；并且拿到控件中的数据；
-                            Class mmpreference =XposedHelpers.findClass(Class_MMPreference,clsLoader);
-                            for (Field field : mmpreference.getDeclaredFields()) { //遍历类成员
-                                //setAccessible能够获得number；
-                                field.setAccessible(true);
-                                if((field.getName()).equals(MMFRAME_LISTVIEW))
-                                {
-                                    ListView listview = (ListView) field.get(currentObject);
-                                    if(listview!=null){
-                                        XposedBridge.log("we get listview suceess!");
-
-                                        contactInfoUITextViews.clear();
-                                        //contactsInfoUIIMageViews.clear();
-                                        /*使用stringBuilder 虽然性能差点，但是线程安全*/
-                                        StringBuilder stringBuffer =new StringBuilder();
-
-                                        getTextViewFromViewGroup(listview);
-
-                                        for (TextView textView : contactInfoUITextViews) {
-                                            if(!TextUtils.isEmpty(textView.getText().toString())){
-                                                   int textViewId =textView.getId();
-                                                   if(textViewId==ContactUI_ID_UserName){
-                                                       stringBuffer.append("用户显示名称：").append(textView.getText().toString()).append("\n");
-                                                   }else if(textViewId==ContactUI_ID_Area){
-                                                       stringBuffer.append("用户的地区：").append(textView.getText().toString()).append("\n");
-                                                   }else  if(textViewId==ContactUI_ID_Distance||textViewId==ContactUI_ID_WECHAT_NUM){
-                                                       stringBuffer.append("用户的微信号或者距离：").append(textView.getText().toString()).append("\n");
-                                                   }else  if (textViewId==ContactUI_ID_Labels){
-                                                       stringBuffer.append("标签：").append(textView.getText().toString()).append("\n");
-                                                   }else  if (textViewId==ContactUI_ID_NickName){
-                                                       stringBuffer.append("微信昵称：").append(textView.getText().toString()).append("\n");
-                                                   }else  if (textViewId==ContactUI_ID_SigNature){
-                                                       stringBuffer.append("个性签名：").append(textView.getText().toString()).append("\n");
-                                                   }
-                                                XposedBridge.log(textView.getText().toString());
-                                            }
-                                        }
-
-                                        try{
-                                            //send message to receiver ;
-                                            Intent intent =new Intent() ;
-                                            intent.putExtra(com.szhua.androidxposed.Constant.IntentExtendedStringName,stringBuffer.toString());
-                                            intent.setAction(com.szhua.androidxposed.Constant.Receiver_Action);
-                                            ((Context)currentObject).sendBroadcast(intent);
-                                        }catch (ClassCastException e){
-                                          Logger.e("the currentObject can not cast to Context !!");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-    }
 
 
     /* 进入界面进行展示：toast*/
@@ -255,77 +196,33 @@ public class WeChatHook {
         }
     }
 
+    private TextView getPhoneNumberView(ViewGroup viewGroup){
+        int childCount =viewGroup.getChildCount() ;
+        for (int i = 0; i <childCount ; i++) {
+            View childView =viewGroup.getChildAt(i) ;
+            if(childView instanceof  TextView){
+                return (TextView) childView;
+            }else if(childView instanceof ViewGroup){
+                return  getPhoneNumberView((ViewGroup) childView);
+            }
+        }
+     return  null ;
+    }
+
+
     /* @param intent  almost nothing O(∩_∩)O */
     private String  getContactInfoFromIntent(Intent intent){
-        int a = intent.getIntExtra("Contact_Scene", 9);
-        String b  = intent.getStringExtra("Verify_ticket");
-        boolean c= intent.getBooleanExtra("Chat_Readonly", false);
-        boolean d = intent.getBooleanExtra("User_Verify", false);
-        String f= intent.getStringExtra("Contact_ChatRoomId");
-        String g= intent.getStringExtra("Contact_User");
         String h = intent.getStringExtra("Contact_Alias");
-        String i =intent.getStringExtra("Contact_Encryptusername");
-        
-  
         String j = intent.getStringExtra("Contact_Nick");
+        //1:male 2:femaile;
         int k = intent.getIntExtra("Contact_Sex", 0);
-        String l= intent.getStringExtra("Contact_Province");
-        String m = intent.getStringExtra("Contact_City");
-        String n = intent.getStringExtra("Contact_Signature");
-        int o = intent.getIntExtra("Contact_VUser_Info_Flag", 0);
-        String p = intent.getStringExtra("Contact_VUser_Info");
-        String q = intent.getStringExtra("Contact_Distance");
-        int r = intent.getIntExtra("Contact_KWeibo_flag", 0);
-        String s = intent.getStringExtra("Contact_KWeibo");
-        String t = intent.getStringExtra("Contact_KWeiboNick");
-        String u = intent.getStringExtra("Contact_KFacebookName");
-        long v = intent.getLongExtra("Contact_KFacebookId", 0L);
-        String  w = intent.getStringExtra("Contact_BrandIconURL");
-        String x= intent.getStringExtra("Contact_RegionCode");
-        byte[]  y = intent.getByteArrayExtra("Contact_customInfo");
-        boolean z = intent.getBooleanExtra("force_get_contact", false);
-        String a1 =intent.getStringExtra("Contact_PyInitial");
         String a2 =intent.getStringExtra("Contact_QuanPin");
-        String a3 =intent.getStringExtra("Contact_Search_Mobile");
-        String a4 =intent.getStringExtra("Contact_Search_Mobile") ;
-
         String infos ="" ;
-        infos +=("a:"+a+"\n");
-        infos +=("b:"+b+"\n");
-        infos +=("c:"+c+"\n");
-        infos +=("d:"+d+"\n");
-        infos +=("f:"+f+"\n");
-        infos +=("g:"+g+"\n");
-        infos +=("h:"+h+"\n");//Contact_Alias 微信号
-        infos +=("i:"+i+"\n");
-        infos +=("j:"+j+"\n");//nickname
-        infos +=("k:"+k+"\n");
-        infos +=("l:"+l+"\n");
-        infos +=("m:"+m+"\n");
-        infos +=("n:"+n+"\n");
-        infos +=("o:"+o+"\n");
-        infos +=("p:"+p+"\n");
-        infos +=("q:"+q+"\n");
-        infos +=("r:"+r+"\n");
-        infos +=("s:"+s+"\n");
-        infos +=("t:"+t+"\n");
-        infos +=("u:"+u+"\n");
-        infos +=("v:"+v+"\n");
-        infos +=("w:"+w+"\n");
-        infos +=("x:"+x+"\n"); //provice ;
-        try {
-            if(y.length>0)
-            infos +=("Contact_customInfo:"+new String(y,"UTF-8")+"\n");
-        } catch (Exception e) {
-            Logger.e(e.getMessage());
-        }
-        infos +=("z:"+z+"\n");
-        infos +=("a1:"+a1+"\n");//wechat number  upcase ;
-        infos +=("a2:"+a2+"\n");//wechat number lowcase;
-        infos +=("a3:"+a3+"\n");
-        infos +=("number:"+a4+"\n");
+        infos +=(h+",");//Contact_Alias 微信号
+        infos +=(j+",");//nickname
+        infos+=k+",";//sex
+        infos +=(a2+"\r\n");//wechat number lowcase;
         return  infos ;
-
     }
 
 
@@ -336,7 +233,9 @@ public class WeChatHook {
                 Class_ConactInfoUI ="com.tencent.mm.plugin.profile.ui.ContactInfoUI" ;
                 Class_LauncherUI="com.tencent.mm.ui.LauncherUI" ;
                 Class_MMPreference="com.tencent.mm.ui.base.preference.MMPreference";
-                Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSAddFriendUI" ;
+          //    Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSMainUI" ;
+            //    Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSBaseUI" ;
+                Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.b" ;
 
                 MMFRAME_LISTVIEW ="gsM";
 
@@ -346,10 +245,10 @@ public class WeChatHook {
                 ContactUI_ID_Labels =2131758763;
                 ContactUI_ID_Area =16908304 ;
                 ContactUI_ID_SigNature =16908304 ;
-                ContactUI_ID_Distance =2131756475 ;
+                ContactUI_ID_Distance =2131756475;
 
                 Method_HookIntent_FromContactInfo ="MZ";
-                Method_HookNumber_FromFTSAddFried ="xN" ;
+                Method_HookNumber_FromFTSAddFried ="lX" ;
                 break;
             default:
 
@@ -358,7 +257,9 @@ public class WeChatHook {
                 Class_ConactInfoUI ="com.tencent.mm.plugin.profile.ui.ContactInfoUI" ;
                 Class_LauncherUI="com.tencent.mm.ui.LauncherUI" ;
                 Class_MMPreference="com.tencent.mm.ui.base.preference.MMPreference";
-                Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSAddFriendUI" ;
+             //   Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSMainUI" ;
+              //  Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSBaseUI" ;
+                Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.b" ;
 
                 MMFRAME_LISTVIEW ="gsM";
 
@@ -371,7 +272,7 @@ public class WeChatHook {
                 ContactUI_ID_Distance =2131756475 ;
 
                 Method_HookIntent_FromContactInfo ="MZ";
-                Method_HookNumber_FromFTSAddFried ="xN" ;
+                Method_HookNumber_FromFTSAddFried ="lX" ;
         }
     }
 

@@ -6,8 +6,10 @@ package com.szhua.androidxposed;
  */
 public class Constant {
     public static final String TAG ="leilei" ;
-    public static final String Receiver_Action = "com.szhua.action.userInfo" ;
+    public static final String Receiver_Action_Num = "com.szhua.action.userInfo_num" ;
+    public static final String Receiver_Action_Info = "com.szhua.action.userInfo_Info" ;
     public static final String IntentExtendedStringName ="userInfo" ;
+    public static final String IntentExtendedNumName="num" ;
 
 
 }

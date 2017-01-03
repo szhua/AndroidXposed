@@ -12,15 +12,12 @@ import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
-/**
- * Created by szhua on 2016/12/5.
- *
- */
+
 
 public class Tutorial implements IXposedHookLoadPackage {
-    private  String Class_ActivityThread ="android.app.ActivityThread" ;
-    private  String Method_currentActivityThread ="currentActivityThread" ;
-    private  String Method_getSystemContext ="getSystemContext" ;
+    private  static final String Class_ActivityThread ="android.app.ActivityThread" ;
+    private  static final String Method_currentActivityThread ="currentActivityThread" ;
+    private  static final  String Method_getSystemContext ="getSystemContext" ;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
@@ -35,11 +32,7 @@ public class Tutorial implements IXposedHookLoadPackage {
        WeChatHook.getInstance(version).hook(loadPackageParam.classLoader);
 
     }
-    /**
-     * 获得当前微信中的基本信息 ；
-     * @param packageName
-     * @param loadPackageParam
-     */
+    /*获得当前微信中的基本信息 ；*/
     public String  getBaseInfoFromWx(String packageName ,XC_LoadPackage.LoadPackageParam loadPackageParam){
         Object currentActivityThread  =   callStaticMethod(findClass(Class_ActivityThread,null),Method_currentActivityThread) ;
         Context context = (Context) callMethod(currentActivityThread,Method_getSystemContext);
@@ -54,14 +47,6 @@ public class Tutorial implements IXposedHookLoadPackage {
             return  "6.3.31" ;
         }
     }
-
-
-
-
-
-
-
-
 
 
 }

@@ -107,8 +107,6 @@ public class SavedInformation {
     }
     }) ;
      */
-
-
     // TODO: 2016/12/7
     /**
      * //                        Object currentObject = param.thisObject;
@@ -118,4 +116,99 @@ public class SavedInformation {
      //                        }
      */
 
+
+    // TODO: 2017/1/3
+    //        int a = intent.getIntExtra("Contact_Scene", 9);
+//        String b  = intent.getStringExtra("Verify_ticket");
+//        boolean c= intent.getBooleanExtra("Chat_Readonly", false);
+//        boolean d = intent.getBooleanExtra("User_Verify", false);
+//        String f= intent.getStringExtra("Contact_ChatRoomId");
+//        String g= intent.getStringExtra("Contact_User");
+    //   String i =intent.getStringExtra("Contact_Encryptusername");
+    //        String l= intent.getStringExtra("Contact_Province");
+//        String m = intent.getStringExtra("Contact_City");
+//        String n = intent.getStringExtra("Contact_Signature");
+//        int o = intent.getIntExtra("Contact_VUser_Info_Flag", 0);
+//        String p = intent.getStringExtra("Contact_VUser_Info");
+//        String q = intent.getStringExtra("Contact_Distance");
+//        int r = intent.getIntExtra("Contact_KWeibo_flag", 0);
+//        String s = intent.getStringExtra("Contact_KWeibo");
+//        String t = intent.getStringExtra("Contact_KWeiboNick");
+//        String u = intent.getStringExtra("Contact_KFacebookName");
+//        long v = intent.getLongExtra("Contact_KFacebookId", 0L);
+//        String  w = intent.getStringExtra("Contact_BrandIconURL");
+//        String x= intent.getStringExtra("Contact_RegionCode");
+//        byte[]  y = intent.getByteArrayExtra("Contact_customInfo");
+//        boolean z = intent.getBooleanExtra("force_get_contact", false);
+    //  String a1 =intent.getStringExtra("Contact_PyInitial");
+
+    //        String a3 =intent.getStringExtra("Contact_Search_Mobile");
+//        String a4 =intent.getStringExtra("Contact_Search_Mobile") ;
+
+//    // TODO: 2017/1/3
+//    /*从联系人详情页面的控件中找信息 from listview to get infos */
+//    private void hookDexMethod_getContactInfoUIinfo(final ClassLoader clsLoader) throws XposedHelpers.ClassNotFoundError {
+//        findAndHookMethod(
+//                Class_ConactInfoUI,
+//                clsLoader, Method_onPause , new XC_MethodHook() {
+//                    @Override
+//                    protected void beforeHookedMethod(MethodHookParam param)
+//                            throws Throwable {
+//                        Object currentObject = param.thisObject;
+//                        //获得ContactInfoUI的父类；并且拿到控件中的数据；
+//                        Class mmpreference =XposedHelpers.findClass(Class_MMPreference,clsLoader);
+//                        for (Field field : mmpreference.getDeclaredFields()) { //遍历类成员
+//                            //setAccessible能够获得number；
+//                            field.setAccessible(true);
+//                            if((field.getName()).equals(MMFRAME_LISTVIEW))
+//                            {
+//                                ListView listview = (ListView) field.get(currentObject);
+//                                if(listview!=null){
+//                                    XposedBridge.log("we get listview suceess!");
+//                                    contactInfoUITextViews.clear();
+//                                    //contactsInfoUIIMageViews.clear();
+//
+//  /*使用stringBuilder 虽然性能差点，但是线程安全*/
+//                                    StringBuffer stringBuffer =null ;
+//                                    getTextViewFromViewGroup(listview);
+//
+//                                    for (TextView textView : contactInfoUITextViews) {
+//                                        if(!TextUtils.isEmpty(textView.getText().toString())){
+//
+//                                            if(stringBuffer==null){
+//                                                stringBuffer=new StringBuffer();
+//                                            }
+//                                            int textViewId =textView.getId();
+//                                            if(textViewId==ContactUI_ID_UserName){
+//                                                stringBuffer.append("用户显示名称：").append(textView.getText().toString()).append("\n");
+//                                            }else if(textViewId==ContactUI_ID_Area){
+//                                                stringBuffer.append("用户的地区：").append(textView.getText().toString()).append("\n");
+//                                            }else  if(textViewId==ContactUI_ID_Distance||textViewId==ContactUI_ID_WECHAT_NUM){
+//                                                stringBuffer.append("用户的微信号或者距离：").append(textView.getText().toString()).append("\n");
+//                                            }else  if (textViewId==ContactUI_ID_Labels){
+//                                                stringBuffer.append("标签：").append(textView.getText().toString()).append("\n");
+//                                            }else  if (textViewId==ContactUI_ID_NickName){
+//                                                stringBuffer.append("微信昵称：").append(textView.getText().toString()).append("\n");
+//                                            }else  if (textViewId==ContactUI_ID_SigNature){
+//                                                stringBuffer.append("个性签名：").append(textView.getText().toString()).append("\n");
+//                                            }
+//                                            XposedBridge.log(textView.getText().toString());
+//                                        }
+//                                    }
+//
+////                                        try{
+////                                            //send message to receiver ;
+//////                                            Intent intent =new Intent();
+//////                                            intent.putExtra(com.szhua.androidxposed.Constant.IntentExtendedStringName,stringBuffer.toString());
+//////                                            intent.setAction(com.szhua.androidxposed.Constant.Receiver_Action);
+//////                                            ((Context)currentObject).sendBroadcast(intent);
+////                                        }catch (ClassCastException e){
+////                                          Logger.e("the currentObject can not cast to Context !!");
+////                                        }
+//                                }
+//                            }
+//                        }
+//                    }
+//                });
+//    }
 }
