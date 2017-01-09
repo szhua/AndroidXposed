@@ -1,4 +1,4 @@
-package com.szhua.androidxposed;
+package com.szhua.androidxposed.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.orhanobut.logger.Logger;
+import com.szhua.androidxposed.Config;
+import com.szhua.androidxposed.Constant;
+import com.szhua.androidxposed.SLog;
 
 
 public class WeChatUserInfoGetReceiver extends BroadcastReceiver {
@@ -17,7 +20,6 @@ public class WeChatUserInfoGetReceiver extends BroadcastReceiver {
                     String num   = intent.getStringExtra(Constant.IntentExtendedNumName) ;
 
                     Logger.d(num);
-
 
                     if(!TextUtils.isEmpty(num)){
                         Config.getConfig(context).setNum(num);

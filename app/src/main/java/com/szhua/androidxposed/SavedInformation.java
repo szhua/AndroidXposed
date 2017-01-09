@@ -118,14 +118,14 @@ public class SavedInformation {
 
 
     // TODO: 2017/1/3
-    //        int a = intent.getIntExtra("Contact_Scene", 9);
+//            int a = intent.getIntExtra("Contact_Scene", 9);
 //        String b  = intent.getStringExtra("Verify_ticket");
 //        boolean c= intent.getBooleanExtra("Chat_Readonly", false);
 //        boolean d = intent.getBooleanExtra("User_Verify", false);
 //        String f= intent.getStringExtra("Contact_ChatRoomId");
 //        String g= intent.getStringExtra("Contact_User");
-    //   String i =intent.getStringExtra("Contact_Encryptusername");
-    //        String l= intent.getStringExtra("Contact_Province");
+//       String i =intent.getStringExtra("Contact_Encryptusername");
+//            String l= intent.getStringExtra("Contact_Province");
 //        String m = intent.getStringExtra("Contact_City");
 //        String n = intent.getStringExtra("Contact_Signature");
 //        int o = intent.getIntExtra("Contact_VUser_Info_Flag", 0);
@@ -140,9 +140,9 @@ public class SavedInformation {
 //        String x= intent.getStringExtra("Contact_RegionCode");
 //        byte[]  y = intent.getByteArrayExtra("Contact_customInfo");
 //        boolean z = intent.getBooleanExtra("force_get_contact", false);
-    //  String a1 =intent.getStringExtra("Contact_PyInitial");
-
-    //        String a3 =intent.getStringExtra("Contact_Search_Mobile");
+//      String a1 =intent.getStringExtra("Contact_PyInitial");
+//
+//            String a3 =intent.getStringExtra("Contact_Search_Mobile");
 //        String a4 =intent.getStringExtra("Contact_Search_Mobile") ;
 
 //    // TODO: 2017/1/3
