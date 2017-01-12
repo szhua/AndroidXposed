@@ -1,4 +1,4 @@
-package com.szhua.androidxposed;
+package com.szhua.androidxposed.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,18 +8,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.szhua.androidxposed.R;
+
 /**
  * 模拟插件广告Activity
- *
  */
 public class AdActivity extends Activity {
-
 
     @Override
     public View findViewById(int id) {
         return super.findViewById(id);
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

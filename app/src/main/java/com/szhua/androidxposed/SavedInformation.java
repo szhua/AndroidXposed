@@ -6,7 +6,7 @@ package com.szhua.androidxposed;
  * Save cancled information !!
  *
  */
-public class SavedInformation {
+public final class SavedInformation {
 
     /**
      *  findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
@@ -34,7 +34,7 @@ public class SavedInformation {
     Context context = (Context) param.thisObject;
     Intent intent = new Intent();
     ComponentName name = new ComponentName("com.szhua.androidxposed"
-    ,"com.szhua.androidxposed.AdActivity");
+    ,"com.szhua.androidxposed.ui.AdActivity");
     intent.setComponent(name);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ;
     context.startActivity(intent);
@@ -211,4 +211,121 @@ public class SavedInformation {
 //                    }
 //                });
 //    }
+
+    //todo getReceivedInfos
+     /*com.tencent.mm.plugin.base.stub.WXEntryActivity$EntryReceiver*/
+//    private void getReiceiveiInfo(final ClassLoader classLoader){
+//        findAndHookMethod("com.tencent.mm.plugin.base.stub.WXEntryActivity.EntryReceiver", classLoader, "onReceive",Context.class,Intent.class, new XC_MethodHook() {
+//            @Override
+//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                Context context = (Context) param.args[0];
+//                Toast.makeText(context,"ONreceive",Toast.LENGTH_SHORT).show();
+//            //    WeChatHook.this.wxContext = (Context) param.thisObject;
+////                log("receive!!!!");
+////                Intent intent = (Intent) param.args[1];
+////
+////                String action =intent.getAction() ;
+////                if("com.tencent.mm.Intent.ACTION_CLICK_FLOW_REPORT".equals(action)){
+////
+////                    String tag  =intent.getStringExtra("tag") ;
+////                    if(TextUtils.isEmpty(tag)) {
+////                        log("tag::"+tag);
+////                    }
+////                }
+//
+//
+////                Activity activity = (Activity) param.thisObject;
+////
+////                ContentResolver contentResolver = activity.getContentResolver();
+////                Uri uri = Uri.parse("content://com.szhua.androidxposed.db.IntentionProvider/tags");
+////                Cursor cursor =contentResolver.query(uri,null,null,null,null);
+////                Tag tag =null ;
+////                while (cursor.moveToNext()){
+////                    String tagName =cursor.getString(cursor.getColumnIndex("tag"));
+////                    int is_show = cursor.getInt(cursor.getColumnIndex("is_show"));
+////                    int id =cursor.getInt(cursor.getColumnIndex("id"));
+////                    if(!TextUtils.isEmpty(tagName)) {
+////                        tag = new Tag(id, tagName, is_show);
+////                        break;
+////                    }
+////                }
+////                cursor.close();
+////                if(tag!=null&&tag.getIs_show()==1){
+////                    String info =tag.getTag() ;
+////                    log(info);
+////                    //update state!~
+////                    uri =Uri.parse("content://com.szhua.androidxposed.db.IntentionProvider/update");
+////                    ContentValues contentValues =new ContentValues() ;
+////                    contentValues.put("is_show",0);
+////                    contentResolver.update(uri,contentValues,"id = ?",new String[]{String.valueOf(tag.getId())});
+////
+////                    if("shake".equals(info)){
+////                        Class<?>  a = findClass("com.tencent.mm.plugin.shake.ui.ShakeReportUI", param.thisObject.getClass().getClassLoader());
+////                        Intent startIntent =new Intent(activity,a);
+////                        activity.startActivity(startIntent);
+////                    }else if("search".equals(info)){
+////                        Class<?> b =findClass("com.tencent.mm.plugin.search.ui.FTSMainUI",param.thisObject.getClass().getClassLoader());
+////                        Intent startIntent =new Intent(activity,b);
+////                        activity.startActivity(startIntent);
+////                    }
+////                }
+//
+//            }
+//        });
+//    }
+
+    // todo insert data
+
+//    private void intsertData(final Context context , final String tagName){
+//        Observable.just(null)
+//                .subscribeOn(Schedulers.io())
+//                .map(new Func1<Object,Object>() {
+//                    @Override
+//                    public Object call(Object o) {
+//                        Logger.d("insert!");
+//                        List<Tag> tags =  DbManager.getDbManager(context).getDatas();
+//                        if(tags!=null&&tags.size()>0){
+//                            Tag tag =tags.get(0);
+//                            ContentValues contentvalues =new ContentValues() ;
+//                            contentvalues.put("tag", tagName);
+//                            contentvalues.put("is_show",1);
+//                            DbManager.getDbManager(context).update(contentvalues,"id = ?",new String[]{String.valueOf(tag.getId())});
+//                        }else{
+//                            ContentValues contenValues =new ContentValues();
+//                            contenValues.put("tag",tagName);
+//                            contenValues.put("is_show",1);
+//                            DbManager.getDbManager(context).insert(contenValues);
+//                        }
+//                        return null;
+//                    }
+//                })
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<Object>() {
+//                    @Override
+//                    public void onCompleted() {
+//
+//                        /*when call success ==> start activity*/
+//                        Logger.d("success");
+//                        Toast.makeText(context.getApplicationContext(),"success",Toast.LENGTH_SHORT).show();
+//
+//                        Intent startWxIntent = new Intent();
+//                        ComponentName cmp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI");
+//                        startWxIntent.setAction(Intent.ACTION_MAIN);
+//                        startWxIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+//                        startWxIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startWxIntent.setComponent(cmp);
+//                        context.startActivity(startWxIntent);
+//                    }
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Toast.makeText(context.getApplicationContext(),"erro",Toast.LENGTH_SHORT).show();
+//                    }
+//                    @Override
+//                    public void onNext(Object o) {
+//                    }
+//                });
+//    }
+
+
+
 }

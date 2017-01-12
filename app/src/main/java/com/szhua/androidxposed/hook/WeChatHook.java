@@ -1,11 +1,15 @@
 package com.szhua.androidxposed.hook;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.orhanobut.logger.Logger;
 import com.szhua.androidxposed.Constant;
+
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,10 +29,6 @@ import de.robv.android.xposed.XposedHelpers;
 
 import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
-import static de.robv.android.xposed.XposedHelpers.findClass;
-import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
-
-
 /**
  * AndroidXposed
  * Create   2016/12/30 11:52;
@@ -36,7 +38,6 @@ import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
  */
 public class WeChatHook {
 
-    private static  Context wxContext;
 
     private  static  final  String  Method_OnCreate="onCreate" ;
     private  static final  String  Method_onResume ="onResume" ;
@@ -85,83 +86,13 @@ public class WeChatHook {
             log("erro when lancherUI");
         }
         try {
+            // TODO: 2017/1/11
             getInfoFromContactInfoUI(classLoader);
         } catch (Exception e) {
           log("erro when getInfoFromContactInfoUi");
         }
-//        try{
-//            getReiceiveiInfo(classLoader);
-//        }catch (Exception e){
-//             log("erro when getReceiInfo!!");
-//        }
     }
 
-    /* <receiver android:exported="false" android:name="com.tencent.mm.booter.ClickFlowReceiver">
-            <intent-filter>
-                <action android:name="com.tencent.mm.Intent.ACTION_CLICK_FLOW_REPORT"/>
-            </intent-filter>
-        </receiver>*/
-
-    /*com.tencent.mm.plugin.base.stub.WXEntryActivity$EntryReceiver*/
-    private void getReiceiveiInfo(final ClassLoader classLoader){
-        findAndHookMethod("com.tencent.mm.plugin.base.stub.WXEntryActivity.EntryReceiver", classLoader, "onReceive",Context.class,Intent.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                Context context = (Context) param.args[0];
-                Toast.makeText(context,"ONreceive",Toast.LENGTH_SHORT).show();
-            //    WeChatHook.this.wxContext = (Context) param.thisObject;
-//                log("receive!!!!");
-//                Intent intent = (Intent) param.args[1];
-//
-//                String action =intent.getAction() ;
-//                if("com.tencent.mm.Intent.ACTION_CLICK_FLOW_REPORT".equals(action)){
-//
-//                    String tag  =intent.getStringExtra("tag") ;
-//                    if(TextUtils.isEmpty(tag)) {
-//                        log("tag::"+tag);
-//                    }
-//                }
-
-
-//                Activity activity = (Activity) param.thisObject;
-//
-//                ContentResolver contentResolver = activity.getContentResolver();
-//                Uri uri = Uri.parse("content://com.szhua.androidxposed.db.IntentionProvider/tags");
-//                Cursor cursor =contentResolver.query(uri,null,null,null,null);
-//                Tag tag =null ;
-//                while (cursor.moveToNext()){
-//                    String tagName =cursor.getString(cursor.getColumnIndex("tag"));
-//                    int is_show = cursor.getInt(cursor.getColumnIndex("is_show"));
-//                    int id =cursor.getInt(cursor.getColumnIndex("id"));
-//                    if(!TextUtils.isEmpty(tagName)) {
-//                        tag = new Tag(id, tagName, is_show);
-//                        break;
-//                    }
-//                }
-//                cursor.close();
-//                if(tag!=null&&tag.getIs_show()==1){
-//                    String info =tag.getTag() ;
-//                    log(info);
-//                    //update state!~
-//                    uri =Uri.parse("content://com.szhua.androidxposed.db.IntentionProvider/update");
-//                    ContentValues contentValues =new ContentValues() ;
-//                    contentValues.put("is_show",0);
-//                    contentResolver.update(uri,contentValues,"id = ?",new String[]{String.valueOf(tag.getId())});
-//
-//                    if("shake".equals(info)){
-//                        Class<?>  a = findClass("com.tencent.mm.plugin.shake.ui.ShakeReportUI", param.thisObject.getClass().getClassLoader());
-//                        Intent startIntent =new Intent(activity,a);
-//                        activity.startActivity(startIntent);
-//                    }else if("search".equals(info)){
-//                        Class<?> b =findClass("com.tencent.mm.plugin.search.ui.FTSMainUI",param.thisObject.getClass().getClassLoader());
-//                        Intent startIntent =new Intent(activity,b);
-//                        activity.startActivity(startIntent);
-//                    }
-//                }
-
-            }
-        });
-    }
 
 
     /*在首页进行Toast；（基于这个原理可以加入自己的广告和一些其他的设置）*/
@@ -212,52 +143,69 @@ public class WeChatHook {
                 }
             }
         }) ;
+
     }
+
+
+
+
     /* 从联系人界面获得信息*/
     private void getInfoFromContactInfoUI( ClassLoader classLoader){
            findAndHookMethod(Class_LauncherUI, classLoader,Method_OnCreate,Bundle.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     //获得classLoader实例，以便调用使用dex创建的界面；
-
                     final ClassLoader classLoader =param.thisObject.getClass().getClassLoader();
                    //  hookDexMethod_getContactInfoUIinfo(classLoader);
                     final Activity activity = (Activity) param.thisObject;
+
                     BroadcastReceiver myReceiver =new BroadcastReceiver() {
                         @Override
                         public void onReceive(Context context, Intent intent) {
-
                             log("Onreive");
                             String startActivityName = intent.getStringExtra("startActivityName");
                             try {
                                 Activity currentActivity = getGlobleActivity();
                                 if (!TextUtils.isEmpty(startActivityName)&&currentActivity!=null&&!currentActivity.getClass().getName().toString().contains(startActivityName)) {
-                                            try {
-                                                Toast.makeText(context, startActivityName, Toast.LENGTH_SHORT).show();
-                                                Class<?> a = null;
-                                                if (Constant.shake_ui.equals(startActivityName)) {
-                                                    a = XposedHelpers.findClass(Constant.shake_ui, classLoader);
-                                                } else if (Constant.search_ui.equals(startActivityName)) {
-                                                    a = XposedHelpers.findClass(Constant.search_ui, classLoader);
-                                                }
-                                                if (a != null) {
-                                                    Intent startIntent = new Intent(context, a);
-                                                    context.startActivity(startIntent);
-                                                }
-                                            } catch (Exception e) {
-                                                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
-                                            }
+                                    try {
+                                        Toast.makeText(context, startActivityName, Toast.LENGTH_SHORT).show();
+                                        Class<?> a = null;
+                                        if (Constant.shake_ui.equals(startActivityName)) {
+                                            a = XposedHelpers.findClass(Constant.shake_ui, classLoader);
+                                        } else if (Constant.search_ui.equals(startActivityName)) {
+                                            a = XposedHelpers.findClass(Constant.search_ui, classLoader);
+                                        }else if("share".equals(startActivityName)) {
+                                            Toast.makeText(context,"sharing",Toast.LENGTH_SHORT).show();
+                                            Class<?> shareImgUi =XposedHelpers.findClass("com.tencent.mm.ui.tools.ShareImgUI",classLoader);
+                                            Uri uri =intent.getParcelableExtra("uri");
+                                            Intent intentShare = new Intent(context,shareImgUi);
+                                            intentShare.setAction(Intent.ACTION_SEND);
+                                            Bundle bundle =new Bundle();
+                                           // intentShare.putExtra(Intent.EXTRA_TEXT,"ti");
+                                            intentShare.setType("image/*");
+                                            bundle.putParcelable(Intent.EXTRA_STREAM,uri);
+                                            intentShare.putExtras(bundle);
+                                            context.startActivity(intentShare);
+                                        }
+                                        if (a != null) {
+                                            Intent startIntent = new Intent(context, a);
+                                            context.startActivity(startIntent);
+                                        }
+                                    } catch (Exception e) {
+                                        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                                    }
                                 }
 
                             } catch (Exception e) {
                                 Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
                             }
 
-                    }
+                        }
                     };
                     IntentFilter intentFilter =new IntentFilter();
                     intentFilter.addAction(Constant.TENCENT_JUMP_ACTION);
                     activity.registerReceiver(myReceiver,intentFilter);
+
 
 
 
@@ -266,6 +214,8 @@ public class WeChatHook {
                     toastWhenContactInfoUICreated(classLoader);
                     getListNumInfoFromMobileFriendUI(classLoader);
                     getInfoFromSayHiWithSnsPermissionUIByIntent(classLoader);
+
+                //     getDbString(classLoader);
                 //    getReiceiveiInfo(classLoader);
                 }
             });
@@ -285,7 +235,15 @@ public class WeChatHook {
         }) ;
     }
 
-
+   private void getDbString(ClassLoader classLoader){
+       findAndHookMethod("com.tencent.SelectContactUI", classLoader, "jo",boolean.class, new XC_MethodHook() {
+           @Override
+           protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+             if(param.getResult()!=null)
+             log(param.getResult().toString());
+           }
+       }) ;
+   }
     /*通过intent从联系人界面拿信息 method is mz ;after this method we can get infos*/
     private void getInfoFromContactInfoUI_by_intent(final ClassLoader classLoader){
         findAndHookMethod(Class_ConactInfoUI, classLoader,Method_HookIntent_FromContactInfo, new XC_MethodHook() {
@@ -362,6 +320,7 @@ public class WeChatHook {
 
     /* @param intent  almost nothing O(∩_∩)O */
     private String  getContactInfoFromIntent(Intent intent){
+
         String h = intent.getStringExtra("Contact_Alias");
         String j = intent.getStringExtra("Contact_Nick");
         //1:male 2:femaile;
@@ -374,8 +333,8 @@ public class WeChatHook {
         boolean d = intent.getBooleanExtra("User_Verify", false);
         String f= intent.getStringExtra("Contact_ChatRoomId");
         String g= intent.getStringExtra("Contact_User");
-       String i =intent.getStringExtra("Contact_Encryptusername");
-            String l= intent.getStringExtra("Contact_Province");
+        String i =intent.getStringExtra("Contact_Encryptusername");
+        String l= intent.getStringExtra("Contact_Province");
         String m = intent.getStringExtra("Contact_City");
         String n = intent.getStringExtra("Contact_Signature");
         int o = intent.getIntExtra("Contact_VUser_Info_Flag", 0);
@@ -390,9 +349,9 @@ public class WeChatHook {
         String x= intent.getStringExtra("Contact_RegionCode");
         byte[]  y = intent.getByteArrayExtra("Contact_customInfo");
         boolean z = intent.getBooleanExtra("force_get_contact", false);
-      String a1 =intent.getStringExtra("Contact_PyInitial");
+        String a1 =intent.getStringExtra("Contact_PyInitial");
 
-            String a3 =intent.getStringExtra("Contact_Search_Mobile");
+        String a3 =intent.getStringExtra("Contact_Search_Mobile");
         String a4 =intent.getStringExtra("Contact_Search_Mobile") ;
 
         log(a+"\n"+
@@ -418,7 +377,7 @@ public class WeChatHook {
                 +v+"\n"
                 +w+"\n"
                 +x+"\n"
-                +y+"\n"
+               // +y+"\n"
                 +z+"\n"
                 +a1+"\n"
                 +a4+"\n"
@@ -469,8 +428,8 @@ public class WeChatHook {
                 Class_ConactInfoUI ="com.tencent.mm.plugin.profile.ui.ContactInfoUI" ;
                 Class_LauncherUI="com.tencent.mm.ui.LauncherUI" ;
                 Class_MMPreference="com.tencent.mm.ui.base.preference.MMPreference";
-             //   Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSMainUI" ;
-              //  Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSBaseUI" ;
+                // Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSMainUI" ;
+                //  Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.FTSBaseUI" ;
                 Class_FTSAddFriendUI="com.tencent.mm.plugin.search.ui.b" ;
                 Class_MobileFriendUI_Adapter ="com.tencent.mm.ui.bindmobile.a";
 
@@ -490,7 +449,9 @@ public class WeChatHook {
     }
 
 
+    //获得当前acitivity; 此方法只能够获当前线程中的activity，所以也就是只能够获得微信的界面；
     private  Activity getGlobleActivity() throws Exception{
+
         Class activityThreadClass = Class.forName("android.app.ActivityThread");
         Object activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null);
         Field activitiesField = activityThreadClass.getDeclaredField("mActivities");
@@ -503,8 +464,7 @@ public class WeChatHook {
             if(!pausedField.getBoolean(activityRecord)) {
                 Field activityField = activityRecordClass.getDeclaredField("activity");
                 activityField.setAccessible(true);
-                Activity activity = (Activity) activityField.get(activityRecord);
-                return activity;
+                return (Activity) activityField.get(activityRecord);
             }
         }
         return null;

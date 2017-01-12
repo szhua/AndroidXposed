@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import com.orhanobut.logger.Logger;
 import com.szhua.androidxposed.Config;
 import com.szhua.androidxposed.Constant;
-import com.szhua.androidxposed.SLog;
+import com.szhua.androidxposed.util.SLog;
 
 
 public class WeChatUserInfoGetReceiver extends BroadcastReceiver {

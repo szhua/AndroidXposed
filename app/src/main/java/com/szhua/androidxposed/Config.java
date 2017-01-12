@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
  *
  * @author sz.hua
  */
-public class Config {
+public final class Config {
     public static final String PREFERENCE_NAME = "config";
     public static final int DEFAUL_SHAREPRECENCES_MODE =0 ;
     private SharedPreferences sharedPreferences ;

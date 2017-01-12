@@ -1,4 +1,4 @@
-package com.szhua.androidxposed;
+package com.szhua.androidxposed.hook;
 
 import android.content.Context;
 
@@ -12,7 +12,7 @@ import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 
-public class Tutorial implements IXposedHookLoadPackage  {
+public final class Main implements IXposedHookLoadPackage  {
     private  static final String Class_ActivityThread ="android.app.ActivityThread" ;
     private  static final String Method_currentActivityThread ="currentActivityThread" ;
     private  static final  String Method_getSystemContext ="getSystemContext";

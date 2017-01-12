@@ -1,4 +1,4 @@
-package com.szhua.androidxposed;
+package com.szhua.androidxposed.ui;
 
 import android.content.ContentValues;
 import android.os.PersistableBundle;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.orhanobut.logger.Logger;
+import com.szhua.androidxposed.R;
 import com.szhua.androidxposed.db.DbManager;
 import com.szhua.androidxposed.db.Tag;
 import java.util.List;
